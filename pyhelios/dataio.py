@@ -1,9 +1,19 @@
 """
 数据加载与处理模块
 """
-import xarray as xr
-import numpy as np
+try:
+    import numpy as np
+except Exception:  # pragma: no cover - optional dependency
+    np = None
 from .analysis import detect_shock_front
+
+# ``xarray`` is an optional dependency. Import it lazily so that the
+# package can be imported without requiring the library (useful for the
+# lightweight test environment).
+try:
+    import xarray as xr  # type: ignore
+except Exception:  # pragma: no cover - handled at runtime
+    xr = None
 
 class HeliosData:
     def __init__(self, file_path, config=None):
@@ -15,10 +25,16 @@ class HeliosData:
 
     def load(self):
         """加载原始数据"""
+        if xr is None:
+            raise ImportError(
+                "xarray is required to load Helios data. Please install xarray"
+            )
         self.raw_data = xr.open_dataset(self.file_path)
 
     def process(self):
         """处理数据"""
+        if np is None:
+            raise ImportError("numpy is required for HeliosData.process")
         if self.raw_data is None:
             self.load()
         data = self.raw_data
@@ -40,10 +56,20 @@ class HeliosData:
         time_edges = np.concatenate(([time_whole[0] - time_diff[0]], time_whole[:-1] + time_diff, [time_whole[-1] + time_diff[-1]]))
 
         # Calculate radius edges for pcolormesh
-        radius_diff = np.diff(zone_boundaries, axis=0) / 2
-        radius_edges = np.vstack((zone_boundaries[0, :] - radius_diff[0, :],
-                                  zone_boundaries[:-1, :] + radius_diff,
-                                  zone_boundaries[-1, :] + radius_diff[-1, :]))
+        # radius edges should vary along the radial dimension. The original
+        # implementation mistakenly took the difference along the time axis
+        # which resulted in an array of shape (nt+1, nr) and could trigger
+        # index errors when detecting the shock front.  Here we compute the
+        # difference along the radial axis to obtain an array of shape
+        # (nt, nr+1).
+        radius_diff = np.diff(zone_boundaries, axis=1) / 2
+        radius_edges = np.hstack(
+            (
+                zone_boundaries[:, :1] - radius_diff[:, :1],
+                zone_boundaries[:, :-1] + radius_diff,
+                zone_boundaries[:, -1:] + radius_diff[:, -1:]
+            )
+        )
 
         self.data = {
             "time_whole": time_whole,

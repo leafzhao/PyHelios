@@ -1,5 +1,12 @@
-import numpy as np
-from scipy.signal import savgol_filter
+try:
+    import numpy as np
+except Exception:  # pragma: no cover - optional dependency
+    np = None
+
+try:
+    from scipy.signal import savgol_filter
+except Exception:  # pragma: no cover - optional dependency
+    savgol_filter = None
 
 def detect_shock_front(density, radius_edges, time_edges, density_threshold=1.1):
     '''
@@ -10,6 +17,8 @@ def detect_shock_front(density, radius_edges, time_edges, density_threshold=1.1)
     - density_threshold: 密度跳跃阈值
     返回: shock_pos, shape (nt,)
     '''
+    if np is None:
+        raise ImportError("numpy is required for detect_shock_front")
     shock_pos = []
     nt = density.shape[0]
     for t in range(nt):
@@ -30,8 +39,18 @@ def detect_shock_front(density, radius_edges, time_edges, density_threshold=1.1)
             idx = max_neg_grad_idx if grad[max_neg_grad_idx] < 0 else np.argmin(grad)
         idx = max(0, min(idx, len(rho)-1))
         # 计算对应的半径位置
-        if radius_edges.shape[0] == density.shape[0] + 1:
-            r = 0.5 * (radius_edges[t, idx] + radius_edges[t, idx+1])
+        if (
+            radius_edges.shape[0] == density.shape[0]
+            and radius_edges.shape[1] == density.shape[1] + 1
+        ):
+            # radius_edges has shape (nt, nr+1)
+            r = 0.5 * (radius_edges[t, idx] + radius_edges[t, idx + 1])
+        elif (
+            radius_edges.shape[0] == density.shape[0] + 1
+            and radius_edges.shape[1] == density.shape[1]
+        ):
+            # legacy shape (nt+1, nr)
+            r = 0.5 * (radius_edges[t, idx] + radius_edges[t + 1, idx])
         elif radius_edges.shape[1] == density.shape[0]:
             r = radius_edges[idx, t]
         else:
@@ -46,6 +65,10 @@ def max_pressure(pressure, smooth=True, window_length=11, polyorder=3):
     """
     计算每个时刻的最大压力，并可选用savgol_filter平滑
     """
+    if np is None:
+        raise ImportError("numpy is required for max_pressure")
+    if smooth and savgol_filter is None:
+        raise ImportError("scipy is required for smoothing")
     max_p = np.max(pressure, axis=1)
     if smooth:
         # window_length必须为奇数且小于等于max_p长度
@@ -59,6 +82,10 @@ def smoothed_mass_density(mass_density, smooth=True, window_length=11, polyorder
     """
     对每个时刻的质量密度做savgol平滑
     """
+    if np is None:
+        raise ImportError("numpy is required for smoothed_mass_density")
+    if smooth and savgol_filter is None:
+        raise ImportError("scipy is required for smoothing")
     if not smooth:
         return mass_density
     smoothed = np.empty_like(mass_density)

@@ -1,9 +1,15 @@
 """
 绘图与风格模块
 """
-import matplotlib.pyplot as plt
 import os
-import numpy as np
+try:
+    import matplotlib.pyplot as plt
+except Exception:  # pragma: no cover - optional dependency
+    plt = None
+try:
+    import numpy as np
+except Exception:  # pragma: no cover - optional dependency
+    np = None
 from .analysis import detect_shock_front, max_pressure, smoothed_mass_density
 
 class HeliosPlotter:
@@ -13,6 +19,8 @@ class HeliosPlotter:
 
     def _apply_style(self):
         """设置matplotlib全局风格"""
+        if plt is None:
+            return
         import matplotlib as mpl
         mpl.rcParams['font.size'] = self.config.get('font_size', 7)
         mpl.rcParams['font.family'] = self.config.get('font_family', 'Arial')
@@ -24,6 +32,8 @@ class HeliosPlotter:
 
     def plot_radius(self, helios_data, **kwargs):
         """绘制半径演化图"""
+        if plt is None:
+            raise ImportError("matplotlib is required for plotting")
         data = helios_data.data
         time = data['time_whole']
         radius = data['zone_boundaries']
@@ -63,6 +73,8 @@ class HeliosPlotter:
         '''
         绘制密度图,支持shocktrack叠加主冲击波界面，负梯度最大密度梯度法
         '''
+        if plt is None:
+            raise ImportError("matplotlib is required for plotting")
         data = helios_data.data
         time_edges = data['time_edges']
         radius_edges = data['radius_edges']
@@ -108,6 +120,8 @@ class HeliosPlotter:
         return ax
 
     def plot_eletemp(self, helios_data, **kwargs):
+        if plt is None:
+            raise ImportError("matplotlib is required for plotting")
         data = helios_data.data
         time_edges = data['time_edges']
         radius_edges = data['radius_edges']
@@ -145,6 +159,8 @@ class HeliosPlotter:
         return ax
 
     def plot_iontemp(self, helios_data, **kwargs):
+        if plt is None:
+            raise ImportError("matplotlib is required for plotting")
         data = helios_data.data
         time_edges = data['time_edges']
         radius_edges = data['radius_edges']
@@ -182,6 +198,8 @@ class HeliosPlotter:
         return ax
 
     def plot_radtemp(self, helios_data, **kwargs):
+        if plt is None:
+            raise ImportError("matplotlib is required for plotting")
         data = helios_data.data
         time_edges = data['time_edges']
         radius_edges = data['radius_edges']
@@ -219,6 +237,8 @@ class HeliosPlotter:
         return ax
 
     def plot_pressure(self, helios_data, **kwargs):
+        if plt is None:
+            raise ImportError("matplotlib is required for plotting")
         data = helios_data.data
         time_edges = data['time_edges']
         radius_edges = data['radius_edges']
@@ -256,6 +276,8 @@ class HeliosPlotter:
         return ax
 
     def plot_fluidvel(self, helios_data, **kwargs):
+        if plt is None:
+            raise ImportError("matplotlib is required for plotting")
         data = helios_data.data
         time_edges = data['time_edges']
         radius_edges = data['radius_edges']
@@ -295,6 +317,8 @@ class HeliosPlotter:
 
     def plot_shocktrack(self, helios_data, **kwargs):
         '''独立可视化主冲击波界面随时间的演化，返回shock_pos数组'''
+        if plt is None:
+            raise ImportError("matplotlib is required for plotting")
         data = helios_data.data
         time_edges = data['time_edges']
         radius_edges = data['radius_edges']
@@ -331,6 +355,8 @@ class HeliosPlotter:
         return ax
 
     def plot_max_pressure(self, helios_data, **kwargs):
+        if plt is None:
+            raise ImportError("matplotlib is required for plotting")
         data = helios_data.data
         time = data['time'] if 'time' in data else data['time_whole']
         pressure = data['pressure']
@@ -343,6 +369,8 @@ class HeliosPlotter:
         return ax
 
     def plot_mass_density_smooth(self, helios_data, **kwargs):
+        if plt is None:
+            raise ImportError("matplotlib is required for plotting")
         data = helios_data.data
         time_edges = data['time_edges']
         radius_edges = data['radius_edges']
