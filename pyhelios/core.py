@@ -21,3 +21,24 @@ class PyHelios:
 
     def plot_density(self, **kwargs):
         return self.plotter.plot_density(self.data, **kwargs)
+
+    def plot_eletemp(self, **kwargs):
+        return self.plotter.plot_eletemp(self.data, **kwargs)
+
+    def plot_iontemp(self, **kwargs):
+        return self.plotter.plot_iontemp(self.data, **kwargs)
+
+    def plot_radtemp(self, **kwargs):
+        return self.plotter.plot_radtemp(self.data, **kwargs)
+
+    def plot_pressure(self, **kwargs):
+        return self.plotter.plot_pressure(self.data, **kwargs)
+
+    def plot_fluidvel(self, **kwargs):
+        return self.plotter.plot_fluidvel(self.data, **kwargs)
+
+    def plot_shocktrack(self, **kwargs):
+        return self.plotter.plot_shocktrack(self.data, **kwargs)
+
+    def get(self, key):
+        return self.data.get(key)

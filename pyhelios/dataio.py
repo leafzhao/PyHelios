@@ -3,6 +3,7 @@
 """
 import xarray as xr
 import numpy as np
+from .analysis import detect_shock_front
 
 class HeliosData:
     def __init__(self, file_path, config=None):
@@ -30,7 +31,7 @@ class HeliosData:
         elec_temperature = data['elec_temperature'].values
         rad_temperature = data['radiation_temperature'].values
         zone_mass = data['zone_mass'].values
-        pressure = data['ion_pressure'].values + data['elec_pressure'].values
+        pressure = (data['ion_pressure'].values + data['elec_pressure'].values) *1e-5  #J/cm^3 ->  Mbar
         fluid_velocity = data['fluid_velocity'].values / 100000  # Convert to km/s
         volume = zone_mass / mass_density
 
@@ -62,5 +63,7 @@ class HeliosData:
         self.processed = True
 
     def get(self, key):
-        """获取处理后的数据"""
+        """获取处理后的数据或后处理数据"""
+        if key == 'shock_pos':
+            return detect_shock_front(self.data['mass_density'], self.data['radius_edges'], self.data['time_edges'])
         return self.data.get(key)
