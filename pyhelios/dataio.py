@@ -66,4 +66,10 @@ class HeliosData:
         """获取处理后的数据或后处理数据"""
         if key == 'shock_pos':
             return detect_shock_front(self.data['mass_density'], self.data['radius_edges'], self.data['time_edges'])
+        if key == 'max_pressure':
+            from .analysis import max_pressure
+            return max_pressure(self.data['pressure'])
+        if key == 'max_density':
+            from .analysis import max_density
+            return max_density(self.data['mass_density'])
         return self.data.get(key)

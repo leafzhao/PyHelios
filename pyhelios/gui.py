@@ -79,11 +79,29 @@ class PyHeliosGUI(QMainWindow):
         self.btn_read.clicked.connect(self.read_data)
         self.btn_plot = QPushButton("Plot Radius")
         self.btn_plot.clicked.connect(self.plot_radius)
+        self.btn_plot_density = QPushButton("Plot Density (w/ Shock)")
+        self.btn_plot_density.clicked.connect(self.plot_density)
+        self.btn_plot_eletemp = QPushButton("Plot Electron Temp")
+        self.btn_plot_eletemp.clicked.connect(self.plot_eletemp)
+        self.btn_plot_iontemp = QPushButton("Plot Ion Temp")
+        self.btn_plot_iontemp.clicked.connect(self.plot_iontemp)
+        self.btn_plot_radtemp = QPushButton("Plot Rad Temp")
+        self.btn_plot_radtemp.clicked.connect(self.plot_radtemp)
+        self.btn_plot_pressure = QPushButton("Plot Pressure")
+        self.btn_plot_pressure.clicked.connect(self.plot_pressure)
+        self.btn_plot_fluidvel = QPushButton("Plot Fluid Vel")
+        self.btn_plot_fluidvel.clicked.connect(self.plot_fluidvel)
         self.plot_controls = PlotControlPanel()
         left_panel.addWidget(self.file_label)
         left_panel.addWidget(self.btn_load)
         left_panel.addWidget(self.btn_read)
         left_panel.addWidget(self.btn_plot)
+        left_panel.addWidget(self.btn_plot_density)
+        left_panel.addWidget(self.btn_plot_eletemp)
+        left_panel.addWidget(self.btn_plot_iontemp)
+        left_panel.addWidget(self.btn_plot_radtemp)
+        left_panel.addWidget(self.btn_plot_pressure)
+        left_panel.addWidget(self.btn_plot_fluidvel)
         left_panel.addWidget(self.plot_controls)
         left_panel.addStretch()
         # 中间：matplotlib画布
@@ -122,6 +140,57 @@ class PyHeliosGUI(QMainWindow):
         self.canvas.ax.set_xlabel(ax.get_xlabel())
         self.canvas.ax.set_ylabel(ax.get_ylabel())
         self.canvas.ax.set_title(ax.get_title())
+        self.canvas.draw()
+    def plot_density(self):
+        if not self.helios:
+            self.file_label.setText("请先读取数据！")
+            return
+        params = self.plot_controls.get_params()
+        params['shocktrack'] = True
+        self.canvas.clear()
+        ax = self.helios.plotter.plot_density(self.helios.data, **params)
+        self.canvas.ax.clear()
+        self.canvas.ax.imshow(ax.images[0].get_array(), aspect='auto') if ax.images else None
+        self.canvas.draw()
+    def plot_eletemp(self):
+        if not self.helios:
+            self.file_label.setText("请先读取数据！")
+            return
+        params = self.plot_controls.get_params()
+        self.canvas.clear()
+        ax = self.helios.plotter.plot_eletemp(self.helios.data, **params)
+        self.canvas.draw()
+    def plot_iontemp(self):
+        if not self.helios:
+            self.file_label.setText("请先读取数据！")
+            return
+        params = self.plot_controls.get_params()
+        self.canvas.clear()
+        ax = self.helios.plotter.plot_iontemp(self.helios.data, **params)
+        self.canvas.draw()
+    def plot_radtemp(self):
+        if not self.helios:
+            self.file_label.setText("请先读取数据！")
+            return
+        params = self.plot_controls.get_params()
+        self.canvas.clear()
+        ax = self.helios.plotter.plot_radtemp(self.helios.data, **params)
+        self.canvas.draw()
+    def plot_pressure(self):
+        if not self.helios:
+            self.file_label.setText("请先读取数据！")
+            return
+        params = self.plot_controls.get_params()
+        self.canvas.clear()
+        ax = self.helios.plotter.plot_pressure(self.helios.data, **params)
+        self.canvas.draw()
+    def plot_fluidvel(self):
+        if not self.helios:
+            self.file_label.setText("请先读取数据！")
+            return
+        params = self.plot_controls.get_params()
+        self.canvas.clear()
+        ax = self.helios.plotter.plot_fluidvel(self.helios.data, **params)
         self.canvas.draw()
 
 # 入口

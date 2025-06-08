@@ -4,7 +4,7 @@
 import matplotlib.pyplot as plt
 import os
 import numpy as np
-from .analysis import detect_shock_front, max_pressure, smoothed_mass_density
+from .analysis import detect_shock_front, max_pressure, max_density
 
 class HeliosPlotter:
     def __init__(self, config=None):
@@ -290,7 +290,6 @@ class HeliosPlotter:
             label.set_fontname(font_family)
         for spine in ax.spines.values():
             spine.set_linewidth(border_width)
-        plt.show()
         return ax
 
     def plot_shocktrack(self, helios_data, **kwargs):
@@ -327,7 +326,6 @@ class HeliosPlotter:
         ax.tick_params(axis='both', which='major', labelsize=font_size, length=tick_length, width=tick_width)
         for spine in ax.spines.values():
             spine.set_linewidth(border_width)
-        plt.show()
         return ax
 
     def plot_max_pressure(self, helios_data, **kwargs):
@@ -335,22 +333,57 @@ class HeliosPlotter:
         time = data['time'] if 'time' in data else data['time_whole']
         pressure = data['pressure']
         max_p = max_pressure(pressure)
-        fig, ax = plt.subplots(figsize=kwargs.get('figsize', self.config.get('figsize')))
-        ax.plot(time, max_p, label='Max Pressure (smoothed)')
-        ax.set_xlabel('Time (ns)')
-        ax.set_ylabel('Max Pressure (Mbar)')
-        ax.legend()
+        figsize = kwargs.get('figsize', self.config.get('figsize'))
+        font_size = self.config.get('font_size')
+        font_family = self.config.get('font_family')
+        dpi = self.config.get('dpi')
+        border_width = self.config.get('border_width')
+        tick_length = self.config.get('tick_length')
+        tick_width = self.config.get('tick_width')
+        fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
+        ax.plot(time, max_p, label='Max Pressure (smoothed)', color='tab:blue')
+        ax.set_xlabel('Time (ns)', fontsize=font_size, fontfamily=font_family)
+        ax.set_ylabel('Max Pressure (Mbar)', fontsize=font_size, fontfamily=font_family)
+        ax.set_title('Maximum Pressure vs Time', fontsize=font_size, fontfamily=font_family)
+        ax.legend(fontsize=font_size)
+        ax.tick_params(axis='both', which='major', labelsize=font_size, length=tick_length, width=tick_width)
+        for spine in ax.spines.values():
+            spine.set_linewidth(border_width)
         return ax
 
-    def plot_mass_density_smooth(self, helios_data, **kwargs):
+    def plot_max_density(self, helios_data, **kwargs):
+        from .analysis import max_density
         data = helios_data.data
-        time_edges = data['time_edges']
-        radius_edges = data['radius_edges']
+        time = data['time'] if 'time' in data else data['time_whole']
         mass_density = data['mass_density']
-        mass_density_smooth = smoothed_mass_density(mass_density)
-        fig, ax = plt.subplots(figsize=kwargs.get('figsize', self.config.get('figsize')))
-        cmesh = ax.pcolormesh(time_edges, radius_edges.T, mass_density_smooth.T, shading='auto')
-        ax.set_xlabel('Time (ns)')
-        ax.set_ylabel('Radius (um)')
-        ax.set_title('Smoothed Mass Density')
+        max_d = max_density(mass_density)
+        figsize = kwargs.get('figsize', self.config.get('figsize'))
+        font_size = self.config.get('font_size')
+        font_family = self.config.get('font_family')
+        dpi = self.config.get('dpi')
+        border_width = self.config.get('border_width')
+        tick_length = self.config.get('tick_length')
+        tick_width = self.config.get('tick_width')
+        fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
+        ax.plot(time, max_d, label='Max Mass Density (smoothed)', color='tab:orange')
+        ax.set_xlabel('Time (ns)', fontsize=font_size, fontfamily=font_family)
+        ax.set_ylabel('Max Mass Density (g/cc)', fontsize=font_size, fontfamily=font_family)
+        ax.set_title('Maximum Mass Density vs Time', fontsize=font_size, fontfamily=font_family)
+        ax.legend(fontsize=font_size)
+        ax.tick_params(axis='both', which='major', labelsize=font_size, length=tick_length, width=tick_width)
+        for spine in ax.spines.values():
+            spine.set_linewidth(border_width)
         return ax
+
+    # def plot_mass_density(self, helios_data, **kwargs):
+    #     data = helios_data.data
+    #     time_edges = data['time_edges']
+    #     radius_edges = data['radius_edges']
+    #     mass_density = data['mass_density']
+    #     mass_density_smooth = mass_density(mass_density, smooth=True, window_length=11, polyorder=3)
+    #     fig, ax = plt.subplots(figsize=kwargs.get('figsize', self.config.get('figsize')))
+    #     cmesh = ax.pcolormesh(time_edges, radius_edges.T, mass_density_smooth.T, shading='auto')
+    #     ax.set_xlabel('Time (ns)')
+    #     ax.set_ylabel('Radius (um)')
+    #     ax.set_title('Smoothed Mass Density')
+    #     return ax

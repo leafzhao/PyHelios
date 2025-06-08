@@ -40,5 +40,11 @@ class PyHelios:
     def plot_shocktrack(self, **kwargs):
         return self.plotter.plot_shocktrack(self.data, **kwargs)
 
+    def plot_max_pressure(self, **kwargs):
+        return self.plotter.plot_max_pressure(self.data, **kwargs)
+
+    def plot_max_density(self, **kwargs):
+        return self.plotter.plot_max_density(self.data, **kwargs)
+
     def get(self, key):
         return self.data.get(key)

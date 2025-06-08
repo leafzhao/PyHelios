@@ -55,16 +55,14 @@ def max_pressure(pressure, smooth=True, window_length=11, polyorder=3):
         return savgol_filter(max_p, window_length=wl, polyorder=polyorder)
     return max_p
 
-def smoothed_mass_density(mass_density, smooth=True, window_length=11, polyorder=3):
+def max_density(mass_density, smooth=True, window_length=11, polyorder=3):
     """
-    对每个时刻的质量密度做savgol平滑
+    计算每个时刻的最大质量密度，并可选用savgol_filter平滑
     """
-    if not smooth:
-        return mass_density
-    smoothed = np.empty_like(mass_density)
-    for t in range(mass_density.shape[0]):
-        wl = min(window_length, mass_density.shape[1] if mass_density.shape[1]%2==1 else mass_density.shape[1]-1)
+    max_d = np.max(mass_density, axis=1)
+    if smooth:
+        wl = min(window_length, len(max_d) if len(max_d)%2==1 else len(max_d)-1)
         if wl < 3: wl = 3
         if wl % 2 == 0: wl += 1
-        smoothed[t] = savgol_filter(mass_density[t], window_length=wl, polyorder=polyorder)
-    return smoothed 
+        return savgol_filter(max_d, window_length=wl, polyorder=polyorder)
+    return max_d 
